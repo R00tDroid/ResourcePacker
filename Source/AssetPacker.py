@@ -51,9 +51,17 @@ class AssetPacker:
         return self.files
     
     def needsUpdate(self):
-        outputExists = os.path.exists(self.output + ".hpp") and self.output + ".cpp"
-         #TODO Check hash against cache
-        return True
+        outputExists = os.path.exists(self.output + ".hpp") and os.path.exists(self.output + ".cpp")
+    
+        hashSame = False
+        hashFile = self.getCacheLocation()
+        if os.path.exists(hashFile):
+            f = open(self.getCacheLocation(), "r")
+            hash = int(f.read())
+            f.close()
+            hashSame = hash == self.hash
+
+        return not outputExists or not hashSame
     
     def getCacheLocation(self):
         directory = Path(self.output).parent
