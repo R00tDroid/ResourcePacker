@@ -31,7 +31,9 @@ class AssetPacker:
         for filter in self.filters:
             for file in glob.glob(filter.directory + "/**/*.*", recursive=True):
                 relativeLocation = os.path.relpath(file, filter.directory)
-                self.files += [AssetLocation(file, filter.root + relativeLocation)]
+                assetLocation = filter.root + relativeLocation
+                assetLocation = assetLocation.replace("\\", "/")
+                self.files += [AssetLocation(file, assetLocation)]
         #TODO Calculate hash
 
     def getFiles(self):
@@ -70,8 +72,11 @@ class AssetPacker:
             f.write("};\n")
             f.write("unsigned long assetSize" + str(abs(file.hash)) + " = " + str(size) + ";\n")
            
-
         f.write("\nstruct Asset { const char* location; unsigned char* buffer; unsigned long bufferSize; };\n")
+        
+        for file in self.files:
+            f.write("Asset asset" + str(abs(file.hash)) + " = { \"" + file.location + "\", assetBuffer" + str(abs(file.hash)) + ", assetSize" + str(abs(file.hash)) + " };\n")
+        
         f.close()
 
  
