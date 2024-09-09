@@ -1,9 +1,10 @@
 import glob, os
+from pathlib import Path
 
-def fixedHash(text:str):
-  hash=0
-  for ch in text:
-    hash = ( hash*281  ^ ord(ch)*997) & 0xFFFFFFFF
+def fixedHash(string : str):
+  hash = 0
+  for character in string:
+    hash = (hash * 281 ^ ord(character) * 997) & 0xFFFFFFFF
   return hash
 
 class AssetFilter:
@@ -34,25 +35,34 @@ class AssetPacker:
     def scan(self):
         self.files = []
 
+        hashString = str(os.path.getmtime(__file__))
+
         for filter in self.filters:
             for file in glob.glob(filter.directory + "/**/*.*", recursive=True):
                 relativeLocation = os.path.relpath(file, filter.directory)
                 assetLocation = filter.root + relativeLocation
                 assetLocation = assetLocation.replace("\\", "/")
                 self.files += [AssetLocation(file, assetLocation)]
-        #TODO Calculate hash
+                hashString += str(os.path.getmtime(file))
+                
+        self.hash = fixedHash(hashString)
 
     def getFiles(self):
         return self.files
     
     def needsUpdate(self):
-        return True
+        outputExists = os.path.exists(self.output + ".hpp") and self.output + ".cpp"
          #TODO Check hash against cache
+        return True
     
+    def getCacheLocation(self):
+        directory = Path(self.output).parent
+        filename = os.path.basename(self.output)
+        return str(directory) + "/." + filename + ".assetcache"
+
     def generate(self):
         if not self.needsUpdate():
             return
-        #TODO Generate cache
 
         f = open(self.output + ".hpp", "w")
         f.write("#pragma once\n\n")
@@ -92,7 +102,9 @@ class AssetPacker:
         f.write("const char* getAssetLocation(AssetIdentifier id) { return assetList[id]->location; }\n")
         f.write("void* getAssetBuffer(AssetIdentifier id) { return assetList[id]->buffer; }\n")
         f.write("unsigned long getAssetBufferSize(AssetIdentifier id) { return assetList[id]->bufferSize; }\n")
-
         f.close()
 
+        f = open(self.getCacheLocation(), "w")
+        f.write(str(self.hash))
+        f.close()
  
