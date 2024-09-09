@@ -26,7 +26,9 @@ packer.scan()
 for file in packer.getFiles():
     print(file.location + " (" + file.file + ")")
 
-if packer.needsUpdate:
+if packer.needsUpdate():
+    print("Generating...")
     packer.generate()
+    print("Done")
 else:
     print("No update needed")
