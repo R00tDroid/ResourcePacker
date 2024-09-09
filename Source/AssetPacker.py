@@ -10,6 +10,7 @@ class AssetLocation:
     def __init__(self, file, location):
         self.file = file
         self.location = location
+        self.hash = hash(self.location)
 
 class AssetPacker:
     def __init__(self):
@@ -56,6 +57,20 @@ class AssetPacker:
 
         f = open(self.output + ".cpp", "w")
         f.write("#include \"" + os.path.basename(self.output) + ".hpp\"\n\n")
-        f.write("struct Asset { const char* location; unsigned char* buffer; unsigned long bufferSize; };\n")
+
+        for file in self.files:
+            f.write("unsigned char assetBuffer" + str(abs(file.hash)) + "[] = {")
+
+            size = 0
+            fileStream = open(file.file, "rb") 
+            while (byte := fileStream.read(1)):
+                f.write("0x" + byte.hex() + ",")
+                size += 1
+            fileStream.close()
+            f.write("};\n")
+           
+
+        f.write("\nstruct Asset { const char* location; unsigned char* buffer; unsigned long bufferSize; };\n")
         f.close()
-        
+
+ 
