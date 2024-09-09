@@ -68,6 +68,7 @@ class AssetPacker:
                 size += 1
             fileStream.close()
             f.write("};\n")
+            f.write("unsigned long assetSize" + str(abs(file.hash)) + " = " + str(size) + ";\n")
            
 
         f.write("\nstruct Asset { const char* location; unsigned char* buffer; unsigned long bufferSize; };\n")
