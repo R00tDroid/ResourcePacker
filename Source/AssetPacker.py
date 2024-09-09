@@ -28,9 +28,9 @@ class AssetPacker:
         self.files = []
 
         for filter in self.filters:
-            for file in glob.glob(filter.directory + "/*.*", recursive=True):
-                relativeLocation = os.path.relpath(filter.directory, file)
-                self.files += [AssetLocation(file, filter.Root + relativeLocation)]
+            for file in glob.glob(filter.directory + "/**/*.*", recursive=True):
+                relativeLocation = os.path.relpath(file, filter.directory)
+                self.files += [AssetLocation(file, filter.root + relativeLocation)]
         #TODO Calculate hash
 
     def getFiles(self):

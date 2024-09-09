@@ -18,7 +18,15 @@ packer.setOutput(absolutePath)
 
 if arguments.include != None:
     for include in arguments.include:
-        packer.add(include)
-        
+        absoluteInclude = os.path.abspath(include)
+        packer.add(absoluteInclude)
+
 packer.scan()
-packer.generate()
+
+for file in packer.getFiles():
+    print(file.location + " (" + file.file + ")")
+
+if packer.needsUpdate:
+    packer.generate()
+else:
+    print("No update needed")
