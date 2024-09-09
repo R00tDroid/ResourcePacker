@@ -1,17 +1,17 @@
 import glob, os
 
-def AssetFilter():
+class AssetFilter:
     def __init__(self, directory, filter, root):
         self.directory = directory
         self.filter = filter
         self.root = root
 
-def AssetLocation():
+class AssetLocation:
     def __init__(self, file, location):
         self.file = file
         self.location = location
 
-def AssetPacker():
+class AssetPacker:
     def __init__(self):
         self.output = ""
         self.filters = []
@@ -41,7 +41,7 @@ def AssetPacker():
          #TODO Check hash against cache
     
     def generate(self):
-        if not needsUpdate():
+        if not self.needsUpdate():
             return
         #TODO Generate output
         #TODO Generate cache
