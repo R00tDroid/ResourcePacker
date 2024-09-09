@@ -43,5 +43,19 @@ class AssetPacker:
     def generate(self):
         if not self.needsUpdate():
             return
-        #TODO Generate output
         #TODO Generate cache
+
+        f = open(self.output + ".hpp", "w")
+        f.write("#pragma once\n\n")
+        f.write("typedef unsigned long AssetIdentifier;\n\n")
+        f.write("extern AssetIdentifier getAssetCount();\n")
+        f.write("extern const char* getAssetLocation(AssetIdentifier asset);\n")
+        f.write("extern void* getAssetBuffer(AssetIdentifier asset);\n")
+        f.write("extern unsigned long getAssetBufferSize(AssetIdentifier asset);\n")
+        f.close()
+
+        f = open(self.output + ".cpp", "w")
+        f.write("#include \"" + os.path.basename(self.output) + ".hpp\"\n\n")
+        f.write("struct Asset { const char* location; unsigned char* buffer; unsigned long bufferSize; };\n")
+        f.close()
+        
