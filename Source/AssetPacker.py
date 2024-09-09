@@ -1,5 +1,11 @@
 import glob, os
 
+def fixedHash(text:str):
+  hash=0
+  for ch in text:
+    hash = ( hash*281  ^ ord(ch)*997) & 0xFFFFFFFF
+  return hash
+
 class AssetFilter:
     def __init__(self, directory, filter, root):
         self.directory = directory
@@ -10,7 +16,7 @@ class AssetLocation:
     def __init__(self, file, location):
         self.file = file
         self.location = location
-        self.hash = hash(self.location)
+        self.hash = fixedHash(self.location)
 
 class AssetPacker:
     def __init__(self):
@@ -77,6 +83,16 @@ class AssetPacker:
         for file in self.files:
             f.write("Asset asset" + str(abs(file.hash)) + " = { \"" + file.location + "\", assetBuffer" + str(abs(file.hash)) + ", assetSize" + str(abs(file.hash)) + " };\n")
         
+        f.write("\nAssetIdentifier getAssetCount() { return " + str(len(self.files)) + "; }\n")
+        f.write("Asset* assetList[] = {")
+        for file in self.files:
+            f.write("&asset" + str(abs(file.hash)) + ",")
+        f.write("};\n")
+       
+        f.write("const char* getAssetLocation(AssetIdentifier id) { return assetList[id]->location; }\n")
+        f.write("void* getAssetBuffer(AssetIdentifier id) { return assetList[id]->buffer; }\n")
+        f.write("unsigned long getAssetBufferSize(AssetIdentifier id) { return assetList[id]->bufferSize; }\n")
+
         f.close()
 
  
